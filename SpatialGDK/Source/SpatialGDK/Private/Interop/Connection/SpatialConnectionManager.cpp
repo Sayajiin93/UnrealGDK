@@ -21,7 +21,7 @@ using namespace SpatialGDK;
 
 struct ConfigureConnection
 {
-	ConfigureConnection(const FConnectionConfig& InConfig, const bool bConnectAsClient)
+	ConfigureConnection(const FConnectionConfig& InConfig, const bool bConnectAsClient, Worker_LogCallback* LogCallback)
 		: Config(InConfig)
 		, Params()
 		, WorkerType(*Config.WorkerType)
@@ -113,6 +113,7 @@ struct ConfigureConnection
 	FTCHARToUTF8 WorkerType;
 	FTCHARToUTF8 WorkerSDKLogFilePrefix;
 	Worker_ComponentVtable DefaultVtable{};
+	TArray<Worker_LogsinkParameters> Logsinks;
 	Worker_CompressionParameters EnableCompressionParams{};
 	Worker_LogsinkParameters Logsink{};
 
@@ -256,6 +257,11 @@ void USpatialConnectionManager::ProcessLoginTokensResponse(const Worker_Alpha_Lo
 	ConnectToLocator(&DevAuthConfig);
 }
 
+void USpatialConnectionManager::OnLogCallback(void* UserData, const Worker_LogData* Message)
+{
+	UE_LOG(LogSpatialConnectionManager, Log, TEXT("SpatialOS Worker Log: %s"), UTF8_TO_TCHAR(Message->content));
+}
+
 void USpatialConnectionManager::RequestDeploymentLoginTokens()
 {
 	Worker_Alpha_LoginTokensRequest LTParams{};
@@ -314,7 +320,7 @@ void USpatialConnectionManager::ConnectToReceptionist(uint32 PlayInEditorID)
 
 	ReceptionistConfig.PreConnectInit(bConnectAsClient);
 
-	ConfigureConnection ConnectionConfig(ReceptionistConfig, bConnectAsClient);
+	ConfigureConnection ConnectionConfig(ReceptionistConfig, bConnectAsClient, &USpatialConnectionManager::OnLogCallback);
 
 	Worker_ConnectionFuture* ConnectionFuture = Worker_ConnectAsync(
 		TCHAR_TO_UTF8(*ReceptionistConfig.GetReceptionistHost()), ReceptionistConfig.GetReceptionistPort(),
@@ -333,7 +339,7 @@ void USpatialConnectionManager::ConnectToLocator(FLocatorConfig* InLocatorConfig
 
 	InLocatorConfig->PreConnectInit(bConnectAsClient);
 
-	ConfigureConnection ConnectionConfig(*InLocatorConfig, bConnectAsClient);
+	ConfigureConnection ConnectionConfig(*InLocatorConfig, bConnectAsClient, &USpatialConnectionManager::OnLogCallback);
 
 	FTCHARToUTF8 PlayerIdentityTokenCStr(*InLocatorConfig->PlayerIdentityToken);
 	FTCHARToUTF8 LoginTokenCStr(*InLocatorConfig->LoginToken);
