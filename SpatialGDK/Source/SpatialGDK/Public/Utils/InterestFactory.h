@@ -45,7 +45,8 @@ public:
 	Worker_ComponentData CreateInterestData(AActor* InActor, const FClassInfo& InInfo, const Worker_EntityId InEntityId) const;
 	Worker_ComponentUpdate CreateInterestUpdate(AActor* InActor, const FClassInfo& InInfo, const Worker_EntityId InEntityId) const;
 
-	Interest CreateServerWorkerInterest(const UAbstractLBStrategy* LBStrategy);
+	Interest CreateServerWorkerInterest();
+	Interest CreatePartitionInterest(const UAbstractLBStrategy* LBStrategy, VirtualWorkerId VirtualWorker) const;
 
 private:
 	// Shared constraints and result types are created at initialization and reused throughout the lifetime of the factory.
