@@ -79,6 +79,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - When changing the project name via the `Cloud Deployment` dialog the development authentication token will automatically be regenerated.
 - The SpatialOS project name can now be modified via the **SpatialOS Editor Settings**.
 - Replaced the `Generate From Current Map` button from the `Cloud Deployment Configuration` window by `Automatically Generate Launch Configuration` checkbox. If ticked, it generates an up to date configuration from the current map when selecting the `Start Deployment` button.
+- Added support for the new SpatialOS Runtime. 
+-Added the `Connect local server worker to the cloud deployment` checkbox in **SpatialOS Editor Settings**, that enables/disables the option to start and connect a local server to the cloud deployment when `Connect to cloud deployment` is enabled.
 
 ### Bug fixes:
 - Fix problem where load balanced cloud deploys could fail to start while under heavy load.
