@@ -106,6 +106,11 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SpatialOS")
 	static FString GetActorEntityIdAsString(const AActor* Actor);
 
+	/**
+	 * Returns the local layer name for this worker. Returns client worker type for all clients, and default layer for native servers.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "SpatialOS", meta = (WorldContext = "WorldContextObject"))
+	static FName GetLayerName(const UObject* WorldContextObject);
 
 private:
 
