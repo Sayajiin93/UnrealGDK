@@ -79,10 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - When changing the project name via the `Cloud Deployment` dialog the development authentication token will automatically be regenerated.
 - The SpatialOS project name can now be modified via the **SpatialOS Editor Settings**.
 - Replaced the `Generate From Current Map` button from the `Cloud Deployment Configuration` window by `Automatically Generate Launch Configuration` checkbox. If ticked, it generates an up to date configuration from the current map when selecting the `Start Deployment` button.
-- Added support for the new SpatialOS Runtime. 
-- Added a new dropdown setting in SpatialGDK Editor Settings to choose Runtime variant. There is currently Standard and Compatibility Mode. Standard is default, Compatibility Mode can be used if any networking issues arise when updating to the latest GDK version.
-- Added new default deployment templates. The default template changes based on which Runtime variant you have selected and your current primary deployment region is.
-- Inspector V2 is now supported. Inspector V2 is used by default for the Standard Runtime variant. Inspector V1 remains the default for the Compatibility Mode Runtime variant.
 - Added the `Connect local server worker to the cloud deployment` checkbox in **SpatialOS Editor Settings**, that enables/disables the option to start and connect a local server-worker to a cloud deployment when `Connect to cloud deployment` is enabled.
 
 
