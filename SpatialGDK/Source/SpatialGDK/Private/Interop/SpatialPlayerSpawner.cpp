@@ -51,8 +51,7 @@ void USpatialPlayerSpawner::SendPlayerSpawnRequest()
 	SpatialSpawnerQuery.constraint = SpatialSpawnerConstraint;
 	SpatialSpawnerQuery.result_type = WORKER_RESULT_TYPE_SNAPSHOT;
 
-	Worker_RequestId RequestID;
-	RequestID = NetDriver->Connection->SendEntityQueryRequest(&SpatialSpawnerQuery);
+	Worker_RequestId RequestID = NetDriver->Connection->SendEntityQueryRequest(&SpatialSpawnerQuery);
 
 	EntityQueryDelegate SpatialSpawnerQueryDelegate;
 	SpatialSpawnerQueryDelegate.BindLambda([this, RequestID](const Worker_EntityQueryResponseOp& Op)

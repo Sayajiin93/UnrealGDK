@@ -765,7 +765,14 @@ int64 USpatialActorChannel::ReplicateActor()
 				}
 				else
 				{
-					Sender->SendAuthorityDelegationUpdate(EntityId, NewAuthVirtualWorkerId);
+					if (GetDefault<USpatialGDKSettings>()->bEnableUserSpaceLoadBalancing)
+					{
+						Sender->SendAuthorityIntentUpdate(*Actor, NewAuthVirtualWorkerId);
+					}
+					else
+					{
+						Sender->SendAuthorityDelegationUpdate(EntityId, NewAuthVirtualWorkerId);
+					}
 
 					// If we're setting a different authority intent, preemptively changed to ROLE_SimulatedProxy
 					Actor->Role = ROLE_SimulatedProxy;
@@ -1360,6 +1367,7 @@ void USpatialActorChannel::ServerProcessOwnershipChange()
 			Sender->UpdateClientAuthoritativeComponentAclEntries(EntityId, NewClientConnectionWorkerId);
 		}
 
+		// ALLY SHOULD THIS BE THE LOCAL WORKER ID???????????????????????????????
 		Sender->SendAuthorityDelegationUpdate(EntityId, NetDriver->VirtualWorkerTranslator->GetLocalVirtualWorkerId());
 
 		SavedConnectionOwningWorkerId = NewClientConnectionWorkerId;

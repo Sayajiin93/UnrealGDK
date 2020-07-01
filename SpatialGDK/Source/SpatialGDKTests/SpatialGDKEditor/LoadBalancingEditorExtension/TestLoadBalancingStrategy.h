@@ -37,7 +37,7 @@ public:
 		return 0;
 	}
 
-	SpatialGDK::QueryConstraint GetWorkerInterestQueryConstraint() const override
+	SpatialGDK::QueryConstraint GetWorkerInterestQueryConstraint(const VirtualWorkerId VirtualWorker) const override
 	{
 		return SpatialGDK::QueryConstraint();
 	}

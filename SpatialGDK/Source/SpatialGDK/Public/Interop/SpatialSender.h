@@ -155,8 +155,6 @@ private:
 	void TrackRPC(AActor* Actor, UFunction* Function, const SpatialGDK::RPCPayload& Payload, const ERPCType RPCType);
 #endif
 
-	bool WillHaveAuthorityOverActor(AActor* TargetActor, Worker_EntityId TargetEntity) const;
-
 private:
 	UPROPERTY()
 	USpatialNetDriver* NetDriver;

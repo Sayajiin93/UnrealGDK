@@ -45,7 +45,7 @@ public:
 	Worker_ComponentData CreateInterestData(AActor* InActor, const FClassInfo& InInfo, const Worker_EntityId InEntityId) const;
 	Worker_ComponentUpdate CreateInterestUpdate(AActor* InActor, const FClassInfo& InInfo, const Worker_EntityId InEntityId) const;
 
-	Interest CreateServerWorkerInterest();
+	Interest CreateServerWorkerInterest(const UAbstractLBStrategy* LBStrategy, VirtualWorkerId VirtualWorker);
 	Interest CreatePartitionInterest(const UAbstractLBStrategy* LBStrategy, VirtualWorkerId VirtualWorker) const;
 
 private:
