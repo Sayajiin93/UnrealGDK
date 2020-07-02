@@ -765,14 +765,7 @@ int64 USpatialActorChannel::ReplicateActor()
 				}
 				else
 				{
-					if (GetDefault<USpatialGDKSettings>()->bEnableUserSpaceLoadBalancing)
-					{
-						Sender->SendAuthorityIntentUpdate(*Actor, NewAuthVirtualWorkerId);
-					}
-					else
-					{
-						Sender->SendAuthorityDelegationUpdate(EntityId, NewAuthVirtualWorkerId);
-					}
+					Sender->SendAuthorityIntentUpdate(*Actor, NewAuthVirtualWorkerId);
 
 					// If we're setting a different authority intent, preemptively changed to ROLE_SimulatedProxy
 					Actor->Role = ROLE_SimulatedProxy;
@@ -1367,8 +1360,7 @@ void USpatialActorChannel::ServerProcessOwnershipChange()
 			Sender->UpdateClientAuthoritativeComponentAclEntries(EntityId, NewClientConnectionWorkerId);
 		}
 
-		// ALLY SHOULD THIS BE THE LOCAL WORKER ID???????????????????????????????
-		Sender->SendAuthorityDelegationUpdate(EntityId, NetDriver->VirtualWorkerTranslator->GetLocalVirtualWorkerId());
+		NetDriver->LoadBalanceEnforcer->MaybeQueueAclAssignmentRequest(EntityId);
 
 		SavedConnectionOwningWorkerId = NewClientConnectionWorkerId;
 
@@ -1376,7 +1368,7 @@ void USpatialActorChannel::ServerProcessOwnershipChange()
 	}
 
 	// Changing owner can affect which interest bucket the Actor should be in so we need to update it.
-	Worker_ComponentId NewInterestBucketComponentId = NetDriver->ClassInfoManager->ComputeActorInterestComponentId(Actor);
+	const Worker_ComponentId NewInterestBucketComponentId = NetDriver->ClassInfoManager->ComputeActorInterestComponentId(Actor);
 	if (SavedInterestBucketComponentID != NewInterestBucketComponentId)
 	{
 		Sender->SendInterestBucketComponentChange(EntityId, SavedInterestBucketComponentID, NewInterestBucketComponentId);
