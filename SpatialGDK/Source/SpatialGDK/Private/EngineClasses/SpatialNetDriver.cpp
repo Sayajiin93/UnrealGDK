@@ -73,6 +73,7 @@ DEFINE_STAT(STAT_SpatialActorsChanged);
 USpatialNetDriver::USpatialNetDriver(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 	, LoadBalanceStrategy(nullptr)
+	, LoadBalanceEnforcer(nullptr)
 	, bAuthoritativeDestruction(true)
 	, bConnectAsClient(false)
 	, bPersistSpatialConnection(true)
@@ -365,26 +366,9 @@ void USpatialNetDriver::CreateAndInitializeCoreClasses()
 	SpatialMetrics = NewObject<USpatialMetrics>();
 	SpatialWorkerFlags = NewObject<USpatialWorkerFlags>();
 
-	const USpatialGDKSettings* SpatialSettings = GetDefault<USpatialGDKSettings>();
-#if !UE_BUILD_SHIPPING
-	// If metrics display is enabled, spawn an Actor to replicate the information to each client
-	if (IsServer())
-	{
-		if (SpatialSettings->bEnableMetricsDisplay)
-		{
-			SpatialMetricsDisplay = GetWorld()->SpawnActor<ASpatialMetricsDisplay>();
-		}
-
-		if (SpatialSettings->SpatialDebugger != nullptr)
-		{
-			SpatialDebugger = GetWorld()->SpawnActor<ASpatialDebugger>(SpatialSettings->SpatialDebugger);
-		}
-	}
-#endif
-
 	CreateAndInitializeLoadBalancingClasses();
 
-	if (SpatialSettings->UseRPCRingBuffer())
+	if (GetDefault<USpatialGDKSettings>()->UseRPCRingBuffer())
 	{
 		RPCService = MakeUnique<SpatialGDK::SpatialRPCService>(ExtractRPCDelegate::CreateUObject(Receiver, &USpatialReceiver::OnExtractIncomingRPC), StaticComponentView, USpatialLatencyTracer::GetTracer(GetWorld()));
 	}
@@ -429,6 +413,8 @@ void USpatialNetDriver::CreateAndInitializeLoadBalancingClasses()
 
 	if (IsServer())
 	{
+		LoadBalanceEnforcer = MakeUnique<SpatialLoadBalanceEnforcer>(Connection->GetWorkerId(), StaticComponentView, VirtualWorkerTranslator.Get());
+
 		const bool bIsMultiWorkerEnabled = WorldSettings != nullptr && WorldSettings->IsMultiWorkerEnabled();
 		if (!bIsMultiWorkerEnabled)
 		{
@@ -1626,12 +1612,15 @@ void USpatialNetDriver::TickDispatch(float DeltaTime)
 			SpatialMetrics->TickMetrics(Time);
 		}
 
-		check(LoadBalanceEnforcer.IsValid())
+		if (IsServer())
 		{
-			SCOPE_CYCLE_COUNTER(STAT_SpatialUpdateAuthority);
-			for (const auto& AclAssignmentRequest : LoadBalanceEnforcer->ProcessQueuedAclAssignmentRequests())
+			check(LoadBalanceEnforcer.IsValid())
 			{
-				Sender->EnforceAuthority(AclAssignmentRequest);
+				SCOPE_CYCLE_COUNTER(STAT_SpatialUpdateAuthority);
+				for (const auto& AclAssignmentRequest : LoadBalanceEnforcer->ProcessAuthorityChangeRequests())
+				{
+					Sender->EnforceAuthority(AclAssignmentRequest);
+				}
 			}
 		}
 	}
